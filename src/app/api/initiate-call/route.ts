@@ -4,13 +4,23 @@ import { supabase } from '@/lib/supabase';
 
 export async function POST(request: NextRequest) {
   try {
-    const { applicationId, candidatePhone, candidateName, jobTitle, squadId } = await request.json();
+    const { applicationId, candidatePhone, candidateName, jobTitle } = await request.json();
     
     // Validate required fields
-    if (!applicationId || !candidatePhone || !candidateName || !jobTitle || !squadId) {
+    if (!applicationId || !candidatePhone || !candidateName || !jobTitle) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
+      );
+    }
+
+    // Get squad ID from environment variable
+    const squadId = process.env.VAPI_SQUAD_ID;
+    if (!squadId) {
+      console.error('VAPI_SQUAD_ID environment variable is not configured');
+      return NextResponse.json(
+        { error: 'VAPI configuration not found' },
+        { status: 500 }
       );
     }
     

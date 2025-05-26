@@ -181,38 +181,33 @@ export default function ApplyPage() {
         throw applicationError;
       }
 
-      // Initiate VAPI call if the job has a squad ID configured
-      if (job?.vapi_squad_id) {
-        try {
-          const callResponse = await fetch('/api/initiate-call', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              applicationId: applicationData.id,
-              candidatePhone: formData.phone,
-              candidateName: `${formData.firstName} ${formData.lastName}`,
-              jobTitle: job.title,
-              squadId: job.vapi_squad_id,
-            }),
-          });
+      // Initiate VAPI call automatically for all applications
+      try {
+        const callResponse = await fetch('/api/initiate-call', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            applicationId: applicationData.id,
+            candidatePhone: formData.phone,
+            candidateName: `${formData.firstName} ${formData.lastName}`,
+            jobTitle: job.title,
+          }),
+        });
 
-          if (callResponse.ok) {
-            const callResult = await callResponse.json();
-            console.log('VAPI call initiated:', callResult);
-            toast.success('Application submitted successfully! You will receive a call shortly for your AI interview.');
-          } else {
-            const errorData = await callResponse.json();
-            console.error('Failed to initiate call:', errorData);
-            toast.success('Application submitted successfully! We\'ll contact you soon to schedule your interview.');
-          }
-        } catch (callError) {
-          console.error('Error initiating VAPI call:', callError);
+        if (callResponse.ok) {
+          const callResult = await callResponse.json();
+          console.log('VAPI call initiated:', callResult);
+          toast.success('Application submitted successfully! You will receive a call shortly for your AI interview.');
+        } else {
+          const errorData = await callResponse.json();
+          console.error('Failed to initiate call:', errorData);
           toast.success('Application submitted successfully! We\'ll contact you soon to schedule your interview.');
         }
-      } else {
-        toast.success('Application submitted successfully! We\'ll be in touch soon.');
+      } catch (callError) {
+        console.error('Error initiating VAPI call:', callError);
+        toast.success('Application submitted successfully! We\'ll contact you soon to schedule your interview.');
       }
 
       router.push('/application-confirmation');

@@ -523,30 +523,21 @@ export default function JobSetupPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Phone className="h-5 w-5" />
-                VAPI Integration
+                AI Interview Configuration
               </CardTitle>
               <CardDescription>
-                Configure your VAPI squad and phone number for AI interviews
+                AI interviews are automatically enabled for all jobs using your configured VAPI system
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="vapi_squad_id">VAPI Squad ID</Label>
-                <Input
-                  id="vapi_squad_id"
-                  value={formData.vapi_squad_id || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, vapi_squad_id: e.target.value }))}
-                  placeholder="Enter your VAPI Squad ID"
-                />
-              </div>
-              <div>
-                <Label htmlFor="phone_number">Phone Number</Label>
-                <Input
-                  id="phone_number"
-                  value={formData.phone_number || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, phone_number: e.target.value }))}
-                  placeholder="+1 (555) 123-4567"
-                />
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="flex items-center gap-2 text-green-800">
+                  <Phone className="h-4 w-4" />
+                  <span className="font-medium">AI Interviews Enabled</span>
+                </div>
+                <p className="text-green-700 text-sm mt-1">
+                  Candidates will automatically receive AI phone interviews after applying.
+                </p>
               </div>
             </CardContent>
           </Card>
