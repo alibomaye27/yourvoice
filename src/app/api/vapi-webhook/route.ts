@@ -18,7 +18,7 @@ interface VAPIWebhookData {
     };
     transcript?: string;
     summary?: string;
-    analysis?: any;
+    analysis?: Record<string, unknown>;
     createdAt: string;
     startedAt?: string;
     endedAt?: string;
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     console.log('Received VAPI webhook:', JSON.stringify(data, null, 2));
     
     const { type, call } = data;
-    const { id: callId, status, metadata } = call;
+    const { id: callId, metadata } = call;
     
     if (!metadata?.applicationId) {
       console.log('No application ID in webhook metadata, skipping processing');
@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function updateInterviewStatus(interviewId: string, status: string, updates: any) {
+async function updateInterviewStatus(interviewId: string, status: string, updates: Record<string, unknown>) {
   const { error } = await supabase
     .from('interviews')
     .update({

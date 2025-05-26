@@ -14,10 +14,10 @@ if (!supabaseAnonKey) {
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey)
 
 // Helper function to handle Supabase errors
-export const handleSupabaseError = (error: any) => {
+export const handleSupabaseError = (error: Record<string, unknown>) => {
   console.error('Supabase error:', error)
   return {
-    error: error.message || 'An unexpected error occurred',
-    code: error.code || 'UNKNOWN_ERROR'
+    error: (error.message as string) || 'An unexpected error occurred',
+    code: (error.code as string) || 'UNKNOWN_ERROR'
   }
 }

@@ -89,7 +89,7 @@ class VAPIService {
     }
   }
 
-  async getCall(callId: string): Promise<any> {
+  async getCall(callId: string): Promise<Record<string, unknown> | null> {
     try {
       const response = await fetch(`${this.baseUrl}/call/${callId}`, {
         headers: {
@@ -130,13 +130,15 @@ class VAPIService {
 export const vapiService = new VAPIService();
 
 // Helper function to handle VAPI errors
-export const handleVAPIError = (error: any) => {
+export const handleVAPIError = (error: Record<string, unknown>) => {
   console.error('VAPI Error:', error);
   
   if (error.response) {
     // API responded with error status
-    const status = error.response.status;
-    const message = error.response.data?.message || 'Unknown VAPI error';
+    const response = error.response as Record<string, unknown>;
+    const status = response.status;
+    const data = response.data as Record<string, unknown> | undefined;
+    const message = data?.message || 'Unknown VAPI error';
     
     switch (status) {
       case 401:

@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
-import { ArrowLeft, MapPin, DollarSign, Clock, Briefcase, Phone, Calendar } from 'lucide-react';
+import { ArrowLeft, MapPin, DollarSign, Clock, Phone, Calendar } from 'lucide-react';
 import Link from 'next/link';
 
 interface Job {
@@ -63,10 +63,6 @@ export default function ApplyPage() {
     linkedinUrl: ''
   });
 
-  useEffect(() => {
-    fetchJob();
-  }, [jobId]);
-
   const fetchJob = async () => {
     try {
       const { data, error } = await supabase
@@ -94,6 +90,10 @@ export default function ApplyPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchJob();
+  }, [jobId]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
