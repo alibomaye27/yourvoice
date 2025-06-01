@@ -1,98 +1,63 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { vapiService } from '@/lib/vapi';
 import { supabase } from '@/lib/supabase';
 
 export async function POST(request: NextRequest) {
   try {
     const { applicationId, candidatePhone, candidateName, jobTitle } = await request.json();
-    
-    // Validate required fields
-    if (!applicationId || !candidatePhone || !candidateName || !jobTitle) {
+
+    // Fetch the application and job to get the correct squadId
+    const { data: application, error: appError } = await supabase
+      .from('applications')
+      .select('id, job:job_id (vapi_squad_id)')
+      .eq('id', applicationId)
+      .single();
+
+    if (appError || !(application?.job && ((application.job as unknown) as { vapi_squad_id?: string }).vapi_squad_id)) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Could not find job or squad for this application' },
         { status: 400 }
       );
     }
+    const squadId = ((application.job as unknown) as { vapi_squad_id: string }).vapi_squad_id;
+    const phoneNumberId = 'b2c3f1d2-3e38-47c8-bfd7-7e3cbd6d5536';
 
-    // Get squad ID from environment variable
-    const squadId = process.env.VAPI_SQUAD_ID;
-    if (!squadId) {
-      console.error('VAPI_SQUAD_ID environment variable is not configured');
-      return NextResponse.json(
-        { error: 'VAPI configuration not found' },
-        { status: 500 }
-      );
-    }
-    
-    console.log('Initiating VAPI call for application:', applicationId);
-    
-    // Initiate VAPI call with metadata
-    const callResult = await vapiService.makeCall(
-      candidatePhone,
-      squadId,
-      {
-        candidateName,
-        jobTitle,
-        applicationId,
-        callType: 'interview_screening'
-      }
-    );
-    
-    if (!callResult || !callResult.id) {
-      console.error('Failed to initiate VAPI call');
-      return NextResponse.json(
-        { error: 'Failed to initiate call' },
-        { status: 500 }
-      );
-    }
-    
-    console.log('VAPI call initiated with ID:', callResult.id);
-    
-    // Update application status to screening
-    const { error: updateError } = await supabase
-      .from('applications')
-      .update({ 
-        status: 'screening',
-        updated_at: new Date().toISOString()
+    // Initiate VAPI call
+    const vapiResponse = await fetch('https://api.vapi.ai/call', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.VAPI_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        phoneNumberId,
+        squadId,
+        customer: {
+          number: candidatePhone,
+          name: candidateName
+        },
+        name: `AI Interview for ${candidateName}`,
+        metadata: {
+          candidateName,
+          jobTitle,
+          applicationId,
+          callType: 'interview_screening'
+        }
       })
-      .eq('id', applicationId);
-    
-    if (updateError) {
-      console.error('Error updating application status:', updateError);
-      // Don't fail the request, just log the error
-    }
-    
-    // Create initial interview record
-    const { error: interviewError } = await supabase
-      .from('interviews')
-      .insert({
-        application_id: applicationId,
-        step_name: 'Initial Screening',
-        agent_name: 'AI Screening Agent',
-        status: 'scheduled',
-        vapi_call_id: callResult.id,
-        phone_number_used: candidatePhone,
-        scheduled_at: new Date().toISOString(),
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      });
-    
-    if (interviewError) {
-      console.error('Error creating interview record:', interviewError);
-      // Don't fail the request, just log the error
-    }
-    
-    return NextResponse.json({
-      success: true,
-      callId: callResult.id,
-      message: 'Call initiated successfully'
     });
-    
+    const callResult = await vapiResponse.json();
+
+    if (!callResult || !callResult.id) {
+      return NextResponse.json(
+        { error: 'Failed to initiate call', details: callResult },
+        { status: 500 }
+      );
+    }
+
+    // Optionally update application status, etc.
+
+    return NextResponse.json({ success: true, callId: callResult.id });
   } catch (error) {
-    console.error('Error in initiate-call API:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    console.error('Error initiating VAPI call:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 
