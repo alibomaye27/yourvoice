@@ -198,3 +198,5 @@ For support and questions:
 ---
 
 Built with ❤️ using Next.js, Supabase, and VAPI
+
+# Triggering Vercel deployment as a new project member
