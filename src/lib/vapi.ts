@@ -13,6 +13,22 @@ interface VAPICallRequest {
   };
 }
 
+interface VAPIAgent {
+  id: string;
+  name: string;
+  voice: {
+    provider: string;
+    voice_id: string;
+  };
+  model: {
+    provider: string;
+    model: string;
+  };
+  firstMessage?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface VAPICallResponse {
   id: string;
   status: string;
@@ -37,9 +53,40 @@ class VAPIService {
     }
   }
 
+  async getAgents(): Promise<VAPIAgent[]> {
+    try {
+      console.log('VAPI API Key length:', this.apiKey.length);
+      console.log('VAPI API Key first 4 chars:', this.apiKey.substring(0, 4));
+      console.log('Making request to:', `${this.baseUrl}/assistant`);
+      
+      const response = await fetch(`${this.baseUrl}/assistant`, {
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+        },
+      });
+
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error response body:', errorText);
+        throw new Error(`Failed to get agents: ${response.status} - ${errorText}`);
+      }
+
+      const result = await response.json();
+      console.log('Response data:', result);
+      return result || [];
+    } catch (error) {
+      console.error('Error getting VAPI agents:', error);
+      throw error;
+    }
+  }
+
   async makeCall(
     phoneNumber: string, 
-    squadId: string, 
+    squadId: string,
+    assistantId?: string,
     metadata?: {
       candidateName?: string;
       jobTitle?: string;
@@ -60,6 +107,7 @@ class VAPIService {
           number: phoneNumber
         },
         squadId,
+        ...(assistantId && { assistantId }),
         ...(metadata && { metadata })
       };
 

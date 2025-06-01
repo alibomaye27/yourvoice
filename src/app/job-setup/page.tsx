@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -18,10 +18,36 @@ import { JobInsert } from '@/types/database'
 import { Plus, X, Save, Phone, Users, Calendar } from 'lucide-react'
 import { toast } from 'sonner'
 
+interface VAPIAgent {
+  id: string;
+  name: string;
+  voice?: {
+    voiceId: string;
+    provider: string;
+  };
+  model?: {
+    model: string;
+    provider: string;
+  };
+  firstMessage?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface InterviewStep {
+  name: string;
+  agent_name: string;
+  assistant_id: string;
+  duration_minutes: number;
+  description: string;
+}
+
 export default function JobSetupPage() {
   const router = useRouter()
   const [currentTab, setCurrentTab] = useState('basic')
   const [isLoading, setIsLoading] = useState(false)
+  const [agents, setAgents] = useState<VAPIAgent[]>([])
+  const [isLoadingAgents, setIsLoadingAgents] = useState(false)
   
   const [formData, setFormData] = useState<Partial<JobInsert>>({
     title: '',
@@ -38,36 +64,42 @@ export default function JobSetupPage() {
     benefits: [],
     is_active: true,
     interview_process: {
-      steps: [
-        {
-          name: 'Founder Screening',
-          agent_name: 'MountainPass Founder',
-          duration_minutes: 15,
-          description: 'Initial conversation with the company founder'
-        },
-        {
-          name: 'HR Screening',
-          agent_name: 'HR Screener',
-          duration_minutes: 20,
-          description: 'HR screening for culture fit and basic qualifications'
-        },
-        {
-          name: 'Technical Interview',
-          agent_name: 'Ski Instructor',
-          duration_minutes: 30,
-          description: 'Technical skills and experience assessment'
-        }
-      ]
-    }
+      steps: [] as InterviewStep[]
+    },
+    ai_interview_enabled: true,
   })
 
   const [newItem, setNewItem] = useState('')
-  const [newStep, setNewStep] = useState({
+  const [newStep, setNewStep] = useState<InterviewStep>({
     name: '',
     agent_name: '',
+    assistant_id: '',
     duration_minutes: 15,
     description: ''
   })
+
+  useEffect(() => {
+    const fetchAgents = async () => {
+      setIsLoadingAgents(true);
+      try {
+        const response = await fetch('/api/agents');
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Agents data received:', data);
+          console.log('Agents array:', data.agents);
+          setAgents(data.agents);
+          console.log('Agents state after setting:', agents);
+        }
+      } catch (error) {
+        console.error('Error fetching agents:', error);
+        toast.error('Failed to load agents');
+      } finally {
+        setIsLoadingAgents(false);
+      }
+    };
+
+    fetchAgents();
+  }, []);
 
   const progress = () => {
     let completed = 0
@@ -119,6 +151,7 @@ export default function JobSetupPage() {
     setNewStep({
       name: '',
       agent_name: '',
+      assistant_id: '',
       duration_minutes: 15,
       description: ''
     })
@@ -135,7 +168,7 @@ export default function JobSetupPage() {
 
   const handleSubmit = async () => {
     setIsLoading(true)
-    
+
     try {
       // Validate required fields
       if (!formData.title || !formData.company || !formData.description) {
@@ -143,23 +176,127 @@ export default function JobSetupPage() {
         return
       }
 
-      const { data, error } = await supabase
-        .from('jobs')
-        .insert([formData as JobInsert])
-        .select()
-        .single()
+      // Build VAPI squad payload from interview steps
+      const steps = (formData.interview_process?.steps || []) as InterviewStep[];
+      if (steps.length === 0) {
+        toast.error('Please add at least one interview step')
+        setIsLoading(false)
+        return;
+      }
+      const members = steps.map((step, idx) => {
+        const isLast = idx === steps.length - 1;
+        const member: any = {
+          assistantId: step.assistant_id,
+        };
+        if (!isLast) {
+          // @ts-ignore: dynamic property assignment
+          member.assistantDestinations = [
+            {
+              message: " ",
+              description: idx === 0
+                ? "Transfer when you asked your questions to move you forward in the process"
+                : "Transfer after you asked your questions.",
+              type: "assistant",
+              assistantName: steps[idx + 1].agent_name,
+              transferMode: "swap-system-message-in-history"
+            }
+          ];
+        }
+        if (idx > 0) {
+          // @ts-ignore: dynamic property assignment
+          member.assistantOverrides = {
+            firstMessageMode: "assistant-speaks-first-with-model-generated-message"
+          };
+        }
+        return member;
+      });
+      const squadPayload = {
+        name: formData.title || 'Job Squad',
+        members
+      };
 
-      if (error) {
-        console.error('Error creating job:', error)
-        toast.error('Failed to create job')
+      // Create squad in VAPI
+      let squadId = null;
+      try {
+        const squadRes = await fetch('https://api.vapi.ai/squad', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${process.env.VAPI_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(squadPayload),
+        });
+        if (!squadRes.ok) {
+          const errorText = await squadRes.text();
+          throw new Error(`VAPI squad creation failed: ${squadRes.status} - ${errorText}`);
+        }
+        const squadData = await squadRes.json();
+        squadId = squadData.id;
+      } catch (err) {
+        toast.error('Failed to create VAPI squad. Job not created.');
+        setIsLoading(false);
+        return;
+      }
+
+      // Ensure interview_process has the correct structure
+      const jobData = {
+        ...formData,
+        requirements: formData.requirements || [],
+        responsibilities: formData.responsibilities || [],
+        benefits: formData.benefits || [],
+        skills_required: formData.skills_required || [],
+        certifications_required: formData.certifications_required || [],
+        is_active: true,
+        ai_interview_enabled: formData.ai_interview_enabled,
+        interview_process: {
+          steps: formData.interview_process?.steps || []
+        },
+        vapi_squad_id: squadId,
+      }
+
+      // Log the data being sent to Supabase
+      console.log('Submitting job data:', JSON.stringify(jobData, null, 2))
+
+      // First, try to insert without select to see if that works
+      const { error: insertError } = await supabase
+        .from('jobs')
+        .insert([jobData as JobInsert])
+
+      if (insertError) {
+        console.error('Insert error:', insertError)
+        toast.error(`Failed to create job: ${insertError.message}`)
         return
       }
 
+      // If insert succeeded, fetch the created job
+      const { data, error: selectError } = await supabase
+        .from('jobs')
+        .select('*')
+        .eq('title', jobData.title)
+        .eq('company', jobData.company)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single()
+
+      if (selectError) {
+        console.error('Select error:', selectError)
+        toast.error(`Job created but failed to fetch details: ${selectError.message}`)
+        return
+      }
+
+      console.log('Job created successfully:', data)
       toast.success('Job created successfully!')
       router.push('/candidates')
     } catch (error) {
-      console.error('Error:', error)
-      toast.error('An unexpected error occurred')
+      console.error('Unexpected error creating job:', error)
+      if (error instanceof Error) {
+        console.error('Error details:', {
+          name: error.name,
+          message: error.message,
+          stack: error.stack
+        })
+      }
+      toast.error('An unexpected error occurred while creating the job')
     } finally {
       setIsLoading(false)
     }
@@ -539,6 +676,31 @@ export default function JobSetupPage() {
                   Candidates will automatically receive AI phone interviews after applying.
                 </p>
               </div>
+              <div className="mb-4">
+                <Label>AI Interview Enabled</Label>
+                <div className="flex gap-4 mt-2">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="ai_interview_enabled"
+                      value="true"
+                      checked={formData.ai_interview_enabled === true}
+                      onChange={() => setFormData(prev => ({ ...prev, ai_interview_enabled: true }))}
+                    />
+                    Yes
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="ai_interview_enabled"
+                      value="false"
+                      checked={formData.ai_interview_enabled === false}
+                      onChange={() => setFormData(prev => ({ ...prev, ai_interview_enabled: false }))}
+                    />
+                    No
+                  </label>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
@@ -566,13 +728,30 @@ export default function JobSetupPage() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="agent_name">Agent Name</Label>
-                    <Input
-                      id="agent_name"
-                      value={newStep.agent_name}
-                      onChange={(e) => setNewStep(prev => ({ ...prev, agent_name: e.target.value }))}
-                      placeholder="e.g. Technical Interviewer"
-                    />
+                    <Label htmlFor="assistant">VAPI Assistant</Label>
+                    <Select
+                      value={newStep.assistant_id}
+                      onValueChange={(value) => {
+                        const selectedAgent = agents.find(agent => agent.id === value);
+                        setNewStep(prev => ({
+                          ...prev,
+                          assistant_id: value,
+                          agent_name: selectedAgent ? selectedAgent.name : '',
+                        }));
+                      }}
+                      disabled={isLoadingAgents}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select an assistant" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {agents.map((agent) => (
+                          <SelectItem key={agent.id} value={agent.id}>
+                            {agent.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -587,21 +766,25 @@ export default function JobSetupPage() {
                       max="120"
                     />
                   </div>
-                  <div className="flex items-end">
-                    <Button onClick={addInterviewStep} className="w-full">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Step
-                    </Button>
+                  <div>
+                    <Label htmlFor="step_description">Description</Label>
+                    <Textarea
+                      id="step_description"
+                      value={newStep.description}
+                      onChange={(e) => setNewStep(prev => ({ ...prev, description: e.target.value }))}
+                      placeholder="Describe what happens in this interview step..."
+                    />
                   </div>
                 </div>
-                <div>
-                  <Label htmlFor="step_description">Description</Label>
-                  <Textarea
-                    id="step_description"
-                    value={newStep.description}
-                    onChange={(e) => setNewStep(prev => ({ ...prev, description: e.target.value }))}
-                    placeholder="Describe what happens in this interview step..."
-                  />
+                <div className="flex justify-end mt-2">
+                  <Button
+                    onClick={addInterviewStep}
+                    disabled={!newStep.name || !newStep.assistant_id || !newStep.duration_minutes}
+                    className="flex items-center gap-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Add Step
+                  </Button>
                 </div>
               </div>
 

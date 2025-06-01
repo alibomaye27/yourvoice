@@ -32,6 +32,7 @@ export interface Database {
               description: string
             }>
           }
+          ai_interview_enabled?: boolean
         }
         Insert: {
           id?: string
@@ -63,6 +64,7 @@ export interface Database {
               description: string
             }>
           }
+          ai_interview_enabled?: boolean
         }
         Update: {
           id?: string
@@ -94,6 +96,7 @@ export interface Database {
               description: string
             }>
           }
+          ai_interview_enabled?: boolean
         }
       }
       candidates: {
