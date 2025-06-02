@@ -412,24 +412,46 @@ export default function CandidatesPage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {selectedCandidate.resume_url && (
+                    {selectedCandidate.resume && (
                       <div>
                         <Label className="text-sm font-medium text-muted-foreground">Resume</Label>
                         <div className="mt-1">
-                          <Button variant="outline" size="sm" asChild>
-                            <a href={selectedCandidate.resume_url} target="_blank" rel="noopener noreferrer">
-                              <FileText className="h-4 w-4 mr-2" />
-                              View Resume
-                            </a>
-                          </Button>
+                          {selectedCandidate.resume.type === 'file' && selectedCandidate.resume.metadata?.url ? (
+                            <Button variant="outline" size="sm" asChild>
+                              <a href={selectedCandidate.resume.metadata.url} target="_blank" rel="noopener noreferrer">
+                                <FileText className="h-4 w-4 mr-2" />
+                                View Resume ({selectedCandidate.resume.metadata.fileName})
+                              </a>
+                            </Button>
+                          ) : (
+                            <div className="p-3 bg-gray-50 rounded-md text-sm max-h-40 overflow-y-auto">
+                              {selectedCandidate.resume.content || 'Resume content not available'}
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}
                     {selectedCandidate.cover_letter && (
                       <div>
                         <Label className="text-sm font-medium text-muted-foreground">Cover Letter</Label>
-                        <div className="mt-1 p-3 bg-gray-50 rounded-md text-sm">
-                          {selectedCandidate.cover_letter}
+                        <div className="mt-1">
+                          {selectedCandidate.cover_letter.type === 'file' && selectedCandidate.cover_letter.metadata?.url ? (
+                            <div className="space-y-2">
+                              <Button variant="outline" size="sm" asChild>
+                                <a href={selectedCandidate.cover_letter.metadata.url} target="_blank" rel="noopener noreferrer">
+                                  <FileText className="h-4 w-4 mr-2" />
+                                  View Cover Letter ({selectedCandidate.cover_letter.metadata.fileName})
+                                </a>
+                              </Button>
+                              <div className="p-3 bg-gray-50 rounded-md text-sm max-h-40 overflow-y-auto">
+                                {selectedCandidate.cover_letter.content || 'Cover letter content not available'}
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="p-3 bg-gray-50 rounded-md text-sm max-h-40 overflow-y-auto">
+                              {selectedCandidate.cover_letter.content || 'Cover letter content not available'}
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}

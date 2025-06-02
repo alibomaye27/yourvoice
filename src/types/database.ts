@@ -132,7 +132,6 @@ export interface Database {
             }
             uploaded_at: string
           }
-          cover_letter_url?: string
           resume_file_name?: string
           cover_letter_file_name?: string
           certifications: Array<{
@@ -195,7 +194,6 @@ export interface Database {
             }
             uploaded_at: string
           }
-          cover_letter_url?: string
           resume_file_name?: string
           cover_letter_file_name?: string
           certifications?: Array<{
@@ -258,7 +256,6 @@ export interface Database {
             }
             uploaded_at: string
           }
-          cover_letter_url?: string
           resume_file_name?: string
           cover_letter_file_name?: string
           certifications?: Array<{
