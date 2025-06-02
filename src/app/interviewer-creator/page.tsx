@@ -117,10 +117,10 @@ export default function InterviewerCreatorPage() {
       messages.unshift({ role: 'system', content: prompt });
     }
     return {
-      ...model,
+      ...(model || {}),
       messages,
-      provider: model.provider ?? '',
-      model: model.model ?? '',
+      provider: model?.provider ?? '',
+      model: model?.model ?? '',
     };
   };
 
