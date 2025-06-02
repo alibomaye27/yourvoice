@@ -12,7 +12,8 @@ export default function Navigation() {
     { href: '/', label: 'Home', icon: BrainCircuit },
     { href: '/jobs', label: 'Jobs', icon: Briefcase },
     { href: '/job-setup', label: 'Job Setup', icon: Plus },
-    { href: '/candidates', label: 'Candidates', icon: Users }
+    { href: '/candidates', label: 'Candidates', icon: Users },
+    { href: '/interviewer-creator', label: 'Interviewer Creator', icon: BrainCircuit },
   ];
 
   return (
