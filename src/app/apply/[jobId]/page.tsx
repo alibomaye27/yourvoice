@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { FileUpload } from '@/components/ui/file-upload';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { ArrowLeft, MapPin, DollarSign, Clock, Phone, Calendar } from 'lucide-react';
@@ -56,12 +57,14 @@ export default function ApplyPage() {
     lastName: '',
     email: '',
     phone: '',
-    resumeUrl: '',
-    coverLetter: '',
     experienceYears: '',
     skills: '',
     linkedinUrl: ''
   });
+
+  // Document states
+  const [resumeDocument, setResumeDocument] = useState<any>(null);
+  const [coverLetterDocument, setCoverLetterDocument] = useState<any>(null);
 
   const fetchJob = async () => {
     try {
@@ -110,8 +113,9 @@ export default function ApplyPage() {
     if (!formData.lastName.trim()) errors.push('Last name is required');
     if (!formData.email.trim()) errors.push('Email is required');
     if (!formData.phone.trim()) errors.push('Phone number is required');
-    if (!formData.coverLetter.trim()) errors.push('Cover letter is required');
     if (!formData.experienceYears) errors.push('Years of experience is required');
+    if (!resumeDocument) errors.push('Resume is required');
+    if (!coverLetterDocument) errors.push('Cover letter is required');
     
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (formData.email && !emailRegex.test(formData.email)) {
@@ -146,11 +150,11 @@ export default function ApplyPage() {
           last_name: formData.lastName,
           email: formData.email,
           phone: formData.phone,
-          resume_url: formData.resumeUrl || null,
+          resume: resumeDocument,
+          cover_letter: coverLetterDocument,
           linkedin_url: formData.linkedinUrl || null,
           skills: skillsArray,
-          experience_years: parseInt(formData.experienceYears),
-          cover_letter: formData.coverLetter
+          experience_years: parseInt(formData.experienceYears)
         }, {
           onConflict: 'email'
         })
@@ -167,7 +171,7 @@ export default function ApplyPage() {
           candidate_id: candidateData.id,
           status: 'applied',
           applied_at: new Date().toISOString(),
-          cover_letter_specific: formData.coverLetter,
+          cover_letter_specific: coverLetterDocument?.content || '',
           source: 'website'
         })
         .select()
@@ -200,7 +204,12 @@ export default function ApplyPage() {
           if (callResponse.ok) {
             const callResult = await callResponse.json();
             console.log('VAPI call initiated:', callResult);
-            toast.success('Application submitted successfully! You will receive a call shortly for your AI interview.');
+            
+            if (callResult.candidateDocumentsInjected) {
+              toast.success('Application submitted successfully! You will receive a call shortly for your AI interview. Your resume and cover letter have been shared with the AI interviewer.');
+            } else {
+              toast.success('Application submitted successfully! You will receive a call shortly for your AI interview.');
+            }
           } else {
             const errorData = await callResponse.json();
             console.error('Failed to initiate call:', errorData);
@@ -455,18 +464,6 @@ export default function ApplyPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="resumeUrl">Resume URL</Label>
-                  <Input
-                    id="resumeUrl"
-                    name="resumeUrl"
-                    type="url"
-                    placeholder="https://..."
-                    value={formData.resumeUrl}
-                    onChange={handleInputChange}
-                  />
-                </div>
-
-                <div>
                   <Label htmlFor="linkedinUrl">LinkedIn Profile</Label>
                   <Input
                     id="linkedinUrl"
@@ -490,18 +487,20 @@ export default function ApplyPage() {
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="coverLetter">Cover Letter *</Label>
-                  <Textarea
-                    id="coverLetter"
-                    name="coverLetter"
-                    placeholder="Tell us why you're interested in this position and what makes you a great fit..."
-                    value={formData.coverLetter}
-                    onChange={handleInputChange}
-                    rows={5}
-                    required
-                  />
-                </div>
+                {/* File Upload Components */}
+                <FileUpload
+                  label="Resume"
+                  fileType="resume"
+                  onFileUploaded={setResumeDocument}
+                  required
+                />
+
+                <FileUpload
+                  label="Cover Letter"
+                  fileType="cover_letter"
+                  onFileUploaded={setCoverLetterDocument}
+                  required
+                />
 
                 <Button 
                   type="submit" 

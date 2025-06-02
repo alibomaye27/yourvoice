@@ -108,9 +108,32 @@ export interface Database {
           last_name: string
           email: string
           phone: string
-          resume_url?: string
-          resume_text?: string
-          cover_letter?: string
+          resume?: {
+            type: 'file' | 'text'
+            content: string
+            metadata?: {
+              fileName?: string
+              fileSize?: number
+              fileType?: string
+              url?: string
+              storagePath?: string
+            }
+            uploaded_at: string
+          }
+          cover_letter?: {
+            type: 'file' | 'text'
+            content: string
+            metadata?: {
+              fileName?: string
+              fileSize?: number
+              fileType?: string
+              url?: string
+              storagePath?: string
+            }
+            uploaded_at: string
+          }
+          resume_file_name?: string
+          cover_letter_file_name?: string
           certifications: Array<{
             name: string
             issuer: string
@@ -147,9 +170,32 @@ export interface Database {
           last_name: string
           email: string
           phone: string
-          resume_url?: string
-          resume_text?: string
-          cover_letter?: string
+          resume?: {
+            type: 'file' | 'text'
+            content: string
+            metadata?: {
+              fileName?: string
+              fileSize?: number
+              fileType?: string
+              url?: string
+              storagePath?: string
+            }
+            uploaded_at: string
+          }
+          cover_letter?: {
+            type: 'file' | 'text'
+            content: string
+            metadata?: {
+              fileName?: string
+              fileSize?: number
+              fileType?: string
+              url?: string
+              storagePath?: string
+            }
+            uploaded_at: string
+          }
+          resume_file_name?: string
+          cover_letter_file_name?: string
           certifications?: Array<{
             name: string
             issuer: string
@@ -186,9 +232,32 @@ export interface Database {
           last_name?: string
           email?: string
           phone?: string
-          resume_url?: string
-          resume_text?: string
-          cover_letter?: string
+          resume?: {
+            type: 'file' | 'text'
+            content: string
+            metadata?: {
+              fileName?: string
+              fileSize?: number
+              fileType?: string
+              url?: string
+              storagePath?: string
+            }
+            uploaded_at: string
+          }
+          cover_letter?: {
+            type: 'file' | 'text'
+            content: string
+            metadata?: {
+              fileName?: string
+              fileSize?: number
+              fileType?: string
+              url?: string
+              storagePath?: string
+            }
+            uploaded_at: string
+          }
+          resume_file_name?: string
+          cover_letter_file_name?: string
           certifications?: Array<{
             name: string
             issuer: string
@@ -228,7 +297,7 @@ export interface Database {
           status: 'applied' | 'screening' | 'interviewing' | 'offered' | 'hired' | 'rejected' | 'withdrawn'
           applied_at: string
           cover_letter_specific?: string
-          source: 'direct' | 'referral' | 'job_board' | 'social_media' | 'other'
+          source: 'direct' | 'referral' | 'job_board' | 'social_media' | 'other' | 'website'
           notes?: string
           screening_score?: number
           fit_score?: number
@@ -243,7 +312,7 @@ export interface Database {
           status?: 'applied' | 'screening' | 'interviewing' | 'offered' | 'hired' | 'rejected' | 'withdrawn'
           applied_at?: string
           cover_letter_specific?: string
-          source?: 'direct' | 'referral' | 'job_board' | 'social_media' | 'other'
+          source?: 'direct' | 'referral' | 'job_board' | 'social_media' | 'other' | 'website'
           notes?: string
           screening_score?: number
           fit_score?: number
@@ -258,7 +327,7 @@ export interface Database {
           status?: 'applied' | 'screening' | 'interviewing' | 'offered' | 'hired' | 'rejected' | 'withdrawn'
           applied_at?: string
           cover_letter_specific?: string
-          source?: 'direct' | 'referral' | 'job_board' | 'social_media' | 'other'
+          source?: 'direct' | 'referral' | 'job_board' | 'social_media' | 'other' | 'website'
           notes?: string
           screening_score?: number
           fit_score?: number
@@ -365,16 +434,17 @@ export interface Database {
 }
 
 export type Job = Database['public']['Tables']['jobs']['Row']
-export type Candidate = Database['public']['Tables']['candidates']['Row']
-export type Application = Database['public']['Tables']['applications']['Row']
-export type Interview = Database['public']['Tables']['interviews']['Row']
-
 export type JobInsert = Database['public']['Tables']['jobs']['Insert']
-export type CandidateInsert = Database['public']['Tables']['candidates']['Insert']
-export type ApplicationInsert = Database['public']['Tables']['applications']['Insert']
-export type InterviewInsert = Database['public']['Tables']['interviews']['Insert']
-
 export type JobUpdate = Database['public']['Tables']['jobs']['Update']
+
+export type Candidate = Database['public']['Tables']['candidates']['Row']
+export type CandidateInsert = Database['public']['Tables']['candidates']['Insert']
 export type CandidateUpdate = Database['public']['Tables']['candidates']['Update']
+
+export type Application = Database['public']['Tables']['applications']['Row']
+export type ApplicationInsert = Database['public']['Tables']['applications']['Insert']
 export type ApplicationUpdate = Database['public']['Tables']['applications']['Update']
+
+export type Interview = Database['public']['Tables']['interviews']['Row']
+export type InterviewInsert = Database['public']['Tables']['interviews']['Insert']
 export type InterviewUpdate = Database['public']['Tables']['interviews']['Update']
