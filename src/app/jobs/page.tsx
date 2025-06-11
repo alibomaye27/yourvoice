@@ -6,8 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { 
@@ -15,14 +13,9 @@ import {
   MapPin, 
   Clock, 
   DollarSign, 
-  Users, 
   Phone,
   Calendar,
-  Eye,
-  Edit,
-  Plus,
   Search,
-  Filter,
   Send
 } from 'lucide-react';
 
@@ -63,7 +56,6 @@ export default function JobsPage() {
   const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
   useEffect(() => {
     fetchJobs();
@@ -247,112 +239,7 @@ export default function JobsPage() {
                 )}
 
                 <div className="flex space-x-2 pt-4">
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="flex-1"
-                        onClick={() => setSelectedJob(job)}
-                      >
-                        <Eye className="w-4 h-4 mr-2" />
-                        View Details
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-                      <DialogHeader>
-                        <DialogTitle>{selectedJob?.title}</DialogTitle>
-                        <DialogDescription>
-                          {selectedJob?.company} • {selectedJob?.location}
-                        </DialogDescription>
-                      </DialogHeader>
-                      {selectedJob && (
-                        <div className="space-y-6">
-                          <div>
-                            <h4 className="font-semibold mb-2">Job Description</h4>
-                            <p className="text-gray-700">{selectedJob.description}</p>
-                          </div>
-
-                          {selectedJob.requirements.length > 0 && (
-                            <div>
-                              <h4 className="font-semibold mb-2">Requirements</h4>
-                              <ul className="list-disc list-inside space-y-1">
-                                {selectedJob.requirements.map((req, index) => (
-                                  <li key={index} className="text-gray-700">{req}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-
-                          {selectedJob.responsibilities.length > 0 && (
-                            <div>
-                              <h4 className="font-semibold mb-2">Responsibilities</h4>
-                              <ul className="list-disc list-inside space-y-1">
-                                {selectedJob.responsibilities.map((resp, index) => (
-                                  <li key={index} className="text-gray-700">{resp}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-
-                          {selectedJob.skills_required.length > 0 && (
-                            <div>
-                              <h4 className="font-semibold mb-2">Required Skills</h4>
-                              <div className="flex flex-wrap gap-2">
-                                {selectedJob.skills_required.map((skill, index) => (
-                                  <Badge key={index} variant="outline">{skill}</Badge>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          {selectedJob.benefits.length > 0 && (
-                            <div>
-                              <h4 className="font-semibold mb-2">Benefits</h4>
-                              <ul className="list-disc list-inside space-y-1">
-                                {selectedJob.benefits.map((benefit, index) => (
-                                  <li key={index} className="text-gray-700">{benefit}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-
-                          {selectedJob.interview_process.steps.length > 0 && (
-                            <div>
-                              <h4 className="font-semibold mb-2">Interview Process</h4>
-                              <div className="space-y-3">
-                                {selectedJob.interview_process.steps.map((step, index) => (
-                                  <div key={index} className="border rounded-lg p-3">
-                                    <div className="flex items-center justify-between mb-2">
-                                      <h5 className="font-medium">Step {index + 1}: {step.name}</h5>
-                                      <Badge variant="outline">
-                                        <Clock className="w-3 h-3 mr-1" />
-                                        {step.duration_minutes} min
-                                      </Badge>
-                                    </div>
-                                    <p className="text-sm text-gray-600 mb-1">Agent: {step.agent_name}</p>
-                                    <p className="text-sm text-gray-700">{step.description}</p>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Apply Button in Modal */}
-                          <div className="flex justify-center pt-4 border-t">
-                            <Link href={`/apply/${selectedJob.id}`}>
-                              <Button size="lg" className="px-8">
-                                <Send className="w-4 h-4 mr-2" />
-                                Apply Now
-                              </Button>
-                            </Link>
-                          </div>
-                        </div>
-                      )}
-                    </DialogContent>
-                  </Dialog>
-
-                  <Link href={`/apply/${job.id}`} className="flex-1">
+                  <Link href={`/apply/${job.id}`} className="w-full">
                     <Button size="sm" className="w-full">
                       <Send className="w-4 h-4 mr-2" />
                       Apply Now

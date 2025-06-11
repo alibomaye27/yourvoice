@@ -58,7 +58,6 @@ export default function ApplyPage() {
     email: '',
     phone: '',
     experienceYears: '',
-    skills: '',
     linkedinUrl: ''
   });
 
@@ -139,10 +138,6 @@ export default function ApplyPage() {
     
     try {
       // First, create or find the candidate
-      const skillsArray = formData.skills 
-        ? formData.skills.split(',').map(skill => skill.trim()).filter(Boolean)
-        : [];
-      
       const { data: candidateData, error: candidateError } = await supabase
         .from('candidates')
         .upsert({
@@ -153,7 +148,6 @@ export default function ApplyPage() {
           resume: resumeDocument,
           cover_letter: coverLetterDocument,
           linkedin_url: formData.linkedinUrl || null,
-          skills: skillsArray,
           experience_years: parseInt(formData.experienceYears)
         }, {
           onConflict: 'email'
@@ -472,18 +466,6 @@ export default function ApplyPage() {
                     placeholder="https://linkedin.com/in/..."
                     value={formData.linkedinUrl}
                     onChange={handleInputChange}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="skills">Skills (comma-separated)</Label>
-                  <Textarea
-                    id="skills"
-                    name="skills"
-                    placeholder="e.g., JavaScript, React, Node.js, Project Management"
-                    value={formData.skills}
-                    onChange={handleInputChange}
-                    rows={3}
                   />
                 </div>
 
