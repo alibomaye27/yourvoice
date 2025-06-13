@@ -23,9 +23,9 @@ export default function Navigation() {
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
             <BrainCircuit className="w-8 h-8 text-blue-600" />
-            <span className="text-xl font-bold text-gray-900">AI Employment Coach</span>
+            <span className="text-xl font-bold text-gray-900">YourVoice AI</span>
             <Badge variant="secondary" className="ml-2">
-              AI-Powered Interviews
+              AI-Powered Recruitment Platform
             </Badge>
           </Link>
 

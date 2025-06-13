@@ -122,31 +122,35 @@ export default function HomePage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-100/30 via-transparent to-purple-100/30 animate-gradient"></div>
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/20 to-transparent"></div>
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20 relative">
           <div className="text-center">
-            <Badge variant="secondary" className="mb-4 px-4 py-2">
+            <Badge variant="secondary" className="mb-4 px-4 py-2 animate-fade-in">
               <Zap className="w-4 h-4 mr-2" />
-              AI-Powered Recruitment Platform
+              AI-Powered Interviews
             </Badge>
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+            <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 tracking-tight animate-fade-in-up">
               AI Employment
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 animate-gradient-x">
                 {' '}Coach
               </span>
             </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+            <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto animate-fade-in-up delay-100">
               Revolutionize your hiring process with AI-powered phone interviews. 
               Screen candidates efficiently, reduce bias, and find the perfect fit for every role.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up delay-200">
               <Link href="/job-setup">
-                <Button size="lg" className="px-8 py-3">
+                <Button size="lg" className="px-8 py-6 text-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl">
                   Get Started
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
               <Link href="/candidates">
-                <Button variant="outline" size="lg" className="px-8 py-3">
+                <Button variant="outline" size="lg" className="px-8 py-6 text-lg border-2 hover:bg-gray-50">
                   View Candidates
                 </Button>
               </Link>
@@ -156,92 +160,102 @@ export default function HomePage() {
       </div>
 
       {/* Stats Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          <Card>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <Card className="transform hover:scale-105 transition-transform duration-300">
             <CardContent className="p-6 text-center">
-              <Briefcase className="w-8 h-8 mx-auto mb-2 text-blue-600" />
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="bg-blue-50 rounded-full p-3 w-16 h-16 mx-auto mb-4">
+                <Briefcase className="w-10 h-10 text-blue-600" />
+              </div>
+              <div className="text-3xl font-bold text-gray-900 mb-1">
                 {loading ? '...' : stats.totalJobs}
               </div>
-              <div className="text-sm text-gray-600">Active Jobs</div>
+              <div className="text-sm font-medium text-gray-600">Active Jobs</div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="transform hover:scale-105 transition-transform duration-300">
             <CardContent className="p-6 text-center">
-              <Users className="w-8 h-8 mx-auto mb-2 text-green-600" />
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="bg-green-50 rounded-full p-3 w-16 h-16 mx-auto mb-4">
+                <Users className="w-10 h-10 text-green-600" />
+              </div>
+              <div className="text-3xl font-bold text-gray-900 mb-1">
                 {loading ? '...' : stats.totalCandidates}
               </div>
-              <div className="text-sm text-gray-600">Candidates</div>
+              <div className="text-sm font-medium text-gray-600">Candidates</div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="transform hover:scale-105 transition-transform duration-300">
             <CardContent className="p-6 text-center">
-              <Clock className="w-8 h-8 mx-auto mb-2 text-orange-600" />
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="bg-orange-50 rounded-full p-3 w-16 h-16 mx-auto mb-4">
+                <Clock className="w-10 h-10 text-orange-600" />
+              </div>
+              <div className="text-3xl font-bold text-gray-900 mb-1">
                 {loading ? '...' : stats.activeApplications}
               </div>
-              <div className="text-sm text-gray-600">Active Applications</div>
+              <div className="text-sm font-medium text-gray-600">Active Applications</div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="transform hover:scale-105 transition-transform duration-300">
             <CardContent className="p-6 text-center">
-              <CheckCircle className="w-8 h-8 mx-auto mb-2 text-purple-600" />
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="bg-purple-50 rounded-full p-3 w-16 h-16 mx-auto mb-4">
+                <CheckCircle className="w-10 h-10 text-purple-600" />
+              </div>
+              <div className="text-3xl font-bold text-gray-900 mb-1">
                 {loading ? '...' : stats.completedInterviews}
               </div>
-              <div className="text-sm text-gray-600">Completed Interviews</div>
+              <div className="text-sm font-medium text-gray-600">Completed Interviews</div>
             </CardContent>
           </Card>
         </div>
       </div>
 
       {/* Features Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 bg-white rounded-3xl shadow-sm">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">
             Powerful Features for Modern Recruitment
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Leverage cutting-edge AI technology to streamline your hiring process 
             and make better recruitment decisions.
           </p>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
-            <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card key={index} className="group border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50/50">
               <CardHeader>
-                <feature.icon className={`w-12 h-12 ${feature.color} mb-4`} />
-                <CardTitle className="text-xl">{feature.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
+                <div className="mb-6 transform group-hover:scale-110 transition-transform duration-300">
+                  <feature.icon className={`w-12 h-12 ${feature.color}`} />
+                </div>
+                <CardTitle className="text-xl mb-2">{feature.title}</CardTitle>
                 <CardDescription className="text-base">
                   {feature.description}
                 </CardDescription>
-              </CardContent>
+              </CardHeader>
             </Card>
           ))}
         </div>
       </div>
 
       {/* Quick Actions Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">
             Quick Actions
           </h2>
-          <p className="text-lg text-gray-600">
+          <p className="text-xl text-gray-600">
             Get started with the most common tasks
           </p>
         </div>
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {quickActions.map((action, index) => (
             <Link key={index} href={action.href}>
-              <Card className={`${action.color} border-2 transition-all hover:shadow-lg cursor-pointer h-full`}>
+              <Card className={`${action.color} border-2 transition-all hover:shadow-xl hover:-translate-y-1 duration-300 cursor-pointer h-full`}>
                 <CardHeader className="pb-4">
                   <div className="flex items-center space-x-4">
-                    <action.icon className="w-8 h-8 text-gray-700" />
+                    <div className="p-3 rounded-xl bg-white/50">
+                      <action.icon className="w-8 h-8 text-gray-700" />
+                    </div>
                     <div>
                       <CardTitle className="text-xl text-gray-900">
                         {action.title}
@@ -253,9 +267,9 @@ export default function HomePage() {
                   </div>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <div className="flex items-center text-sm font-medium text-gray-700">
+                  <div className="flex items-center text-sm font-medium text-gray-700 group">
                     Get started
-                    <ArrowRight className="ml-2 w-4 h-4" />
+                    <ArrowRight className="ml-2 w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
                   </div>
                 </CardContent>
               </Card>
@@ -265,10 +279,10 @@ export default function HomePage() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-gray-50 border-t">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <footer className="bg-gray-50 border-t mt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center text-gray-600">
-            <p>&copy; 2025 AI Employment Coach. Powered by advanced AI technology.</p>
+            <p className="text-sm">&copy; 2025 YourVoice AI. Powered by VAPI.</p>
           </div>
         </div>
       </footer>
